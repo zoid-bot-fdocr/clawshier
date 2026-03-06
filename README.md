@@ -1,4 +1,4 @@
-# Receipt Expense Tracker
+# Clawshier
 
 OpenClaw skill that processes receipt/invoice photos from any chat channel, extracts expense data via OpenAI Vision, and logs it to a Google Spreadsheet.
 

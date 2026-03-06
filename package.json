@@ -1,5 +1,5 @@
 {
-  "name": "receipt-expense-tracker",
+  "name": "clawshier",
   "version": "1.0.0",
   "description": "OpenClaw skill that extracts receipt data from photos and logs expenses to Google Sheets",
   "license": "MIT",

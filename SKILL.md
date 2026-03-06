@@ -1,5 +1,5 @@
 ---
-name: receipt-expense-tracker
+name: clawshier
 description: >
   Scan receipt or invoice photos sent via chat, extract expense data using
   OpenAI Vision, validate and deduplicate, then log to a Google Spreadsheet.
