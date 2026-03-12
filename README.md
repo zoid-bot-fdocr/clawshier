@@ -11,13 +11,21 @@ OpenClaw skill that processes receipt/invoice photos from any chat channel, extr
 ## Install
 
 ```bash
-git clone https://github.com/YOUR_USER/clawshier.git
-cd clawshier
-npm install
-cp .env.example .env
+clawhub install clawshier
+clawhub update clawshier
 ```
 
-Fill in `.env` with your credentials (see `.env.example`).
+The skill is available on [ClawHub](https://clawhub.ai/fdocr/clawshier).
+
+If you prefer to install manually instead of using the CLI:
+
+```bash
+git clone https://github.com/fdocr/clawshier.git
+cd clawshier
+npm install
+```
+
+After installing, configure the required environment variables (`OPENAI_API_KEY`, `GOOGLE_SHEETS_ID`, `GOOGLE_SERVICE_ACCOUNT_KEY`) in your OpenClaw environment.
 
 ### Google Sheets setup
 
@@ -30,10 +38,6 @@ Fill in `.env` with your credentials (see `.env.example`).
 4. Add the spreadsheet ID and key file path to `.env`
 
 The skill automatically manages all sheet tabs (monthly expense sheets, Invoice Archive Breakdown, and Summary with chart). The default "Sheet1" tab is deleted on first use.
-
-### OpenClaw usage
-
-Copy `SKILL.md` into your OpenClaw skills directory or install via ClawHub.
 
 ## License
 
