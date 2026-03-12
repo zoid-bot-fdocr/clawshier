@@ -62,11 +62,13 @@ Pipe the OCR output to the structurer:
 echo '<step1_output>' | node skills/expense_structurer/handler.js
 ```
 
-Output schema:
+**IMPORTANT**: Do NOT modify this output. Pass it directly to step 3 as-is. The date may arrive in any format (e.g. `10/03/2026`, `03-10-2026`, `2026-03-10`) — this is expected. The validator in step 3 handles all date normalization.
+
+Output schema (note: the date format will vary):
 
 ```json
 {
-  "date": "2026-03-05",
+  "date": "10/03/2026",
   "vendor": "Starbucks",
   "items": [
     { "description": "Caffe Latte", "quantity": 1, "amount": 5.95 }
@@ -81,20 +83,23 @@ Output schema:
 
 ### Step 3 — Validate
 
-Pipe the structured expense to the validator:
+Pipe the structured expense to the validator **without modifying it**:
 
 ```bash
 echo '<step2_output>' | node skills/expense_validator/handler.js
 ```
 
-For **old invoices** (when the user explicitly provides a date), pass the `--date` flag:
+If the user explicitly states or provides a date for the invoice (e.g. "this is from 2026-01-15", "the date is 2026-03-10", "old invoice from 2026-02-20"), **always** pass `--date`:
 
 ```bash
-echo '<step2_output>' | node skills/expense_validator/handler.js --date 2026-01-15
+echo '<step2_output>' | node skills/expense_validator/handler.js --date 2026-03-10
 ```
 
+The `--date` value **must** be in YYYY-MM-DD format or the validator will reject it with a clear error.
+
 This step:
-- **Resolves the date** — the date from step 2 may arrive in any format (MM-DD-YYYY, DD-MM-YYYY, etc.). The validator compares it against today's date to determine the correct interpretation and normalizes to YYYY-MM-DD. If the `--date YYYY-MM-DD` flag is provided, it uses that value directly and skips auto-detection.
+- **Resolves the date** — the date from step 2 may arrive in any format (MM-DD-YYYY, DD-MM-YYYY, etc.). The validator compares it against today's date to determine the correct interpretation and normalizes to YYYY-MM-DD. If `--date` is provided, it uses that value directly and skips auto-detection.
+- Normalizes item data (defaults missing amounts to 0, missing quantities to 1)
 - Generates a SHA-256 fingerprint from `vendor + date + total`
 - Derives the sheet tab name from the expense date (MM-YY format)
 - Checks the matching monthly sheet for duplicate fingerprints (column A)
@@ -104,7 +109,7 @@ This step:
 
 **Date resolution**: invoices are expected to be processed the same day they are issued. The validator tests both MM-DD and DD-MM interpretations and picks the one matching today. If neither matches, the validator returns an error asking the user to provide the date explicitly via `--date`.
 
-**Old invoice flow**: if the user says the image is an old invoice and provides a date (e.g. "this is from 2026-01-15"), pass that date using `--date 2026-01-15`. The value **must** be in YYYY-MM-DD format or the validator will reject it with a clear error.
+**User-provided dates**: whenever the user mentions a date alongside the invoice — whether it is an old invoice, a specific date, or any explicit date reference — pass it via `--date YYYY-MM-DD`. This overrides auto-detection entirely and is the most reliable path.
 
 If a **duplicate is found**, stop the pipeline and tell the user:
 

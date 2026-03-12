@@ -91,6 +91,12 @@ function normalize(expense, overrideDate) {
   expense.subtotal = parseFloat(expense.subtotal) || expense.total;
   expense.tax = parseFloat(expense.tax) || 0;
 
+  expense.items = (expense.items || []).map((item) => ({
+    description: (item.description || "Unknown item").trim(),
+    quantity: parseFloat(item.quantity) || 1,
+    amount: parseFloat(item.amount) || 0,
+  }));
+
   return expense;
 }
 

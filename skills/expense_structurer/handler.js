@@ -11,7 +11,7 @@ const SYSTEM_PROMPT = `You are a receipt parser. Given raw OCR text from a recei
 Required fields:
 - date: The date as it appears on the receipt, including day, month, and year. Preserve the original format (do not reorder components). Infer the year if missing.
 - vendor: Business or store name.
-- items: Array of { description, quantity, amount }. Use quantity 1 if not specified.
+- items: Array of { description, quantity, amount }. Each amount MUST be a number (use 0 if not visible). Use quantity 1 if not specified.
 - subtotal: Number. If missing, sum the item amounts.
 - tax: Number. Use 0 if not visible.
 - total: Number. The final total paid.
