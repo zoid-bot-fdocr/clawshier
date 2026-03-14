@@ -34,7 +34,7 @@ async function main() {
   const spreadsheetId = process.env.GOOGLE_SHEETS_ID;
   const sheetName = sheetNameFromDate(expense.date);
 
-  await ensureSheet(spreadsheetId, sheetName, EXPENSE_HEADERS);
+  await ensureSheet(spreadsheetId, sheetName, EXPENSE_HEADERS, [4, 5, 6]);
 
   const row = [
     expense.fingerprint,
@@ -49,7 +49,7 @@ async function main() {
 
   const rowNumber = await appendRow(spreadsheetId, sheetName, row);
 
-  await ensureSheet(spreadsheetId, BREAKDOWN_SHEET, BREAKDOWN_HEADERS);
+  await ensureSheet(spreadsheetId, BREAKDOWN_SHEET, BREAKDOWN_HEADERS, [3]);
 
   const itemRows = (expense.items || []).map((item) => [
     expense.fingerprint,
