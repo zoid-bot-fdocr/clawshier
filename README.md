@@ -1,12 +1,31 @@
 # Clawshier
 
-OpenClaw skill that processes receipt/invoice photos from any chat channel, extracts expense data via OpenAI Vision, and logs it to a Google Spreadsheet.
+OpenClaw skill that processes receipt/invoice photos from any chat channel, extracts expense data, and logs it to a Google Spreadsheet.
+
+## OCR backends
+
+Clawshier supports OCR via:
+
+- **Ollama** (local) using `llama3.2-vision:latest`
+- **OpenAI Vision** as a fallback or explicit provider
+
+By default, OCR uses:
+
+```env
+CLAWSHIER_VISION_PROVIDER=auto
+```
+
+That means:
+
+1. try Ollama first
+2. if Ollama is unavailable or fails, fall back to OpenAI automatically
 
 ## Prerequisites
 
 - Node.js 18+
-- OpenAI API key
 - Google Cloud service account with Sheets API enabled
+- **Optional but recommended:** OpenAI API key for fallback OCR
+- **Optional:** Ollama running locally with `llama3.2-vision:latest`
 
 ## Install
 
@@ -25,9 +44,27 @@ cd clawshier
 npm install
 ```
 
-After installing, configure the required environment variables (`OPENAI_API_KEY`, `GOOGLE_SHEETS_ID`, `GOOGLE_SERVICE_ACCOUNT_KEY`) in your OpenClaw environment.
+## Configuration
 
-### Google Sheets setup
+Example `.env`:
+
+```env
+CLAWSHIER_VISION_PROVIDER=auto
+CLAWSHIER_OLLAMA_MODEL=llama3.2-vision:latest
+CLAWSHIER_OLLAMA_HOST=http://127.0.0.1:11434
+OPENAI_API_KEY=
+OPENAI_MODEL=gpt-4o
+GOOGLE_SHEETS_ID=
+GOOGLE_SERVICE_ACCOUNT_KEY=path/to/service-account.json
+```
+
+Provider modes:
+
+- `auto` — prefer Ollama, fall back to OpenAI
+- `ollama` — use Ollama only
+- `openai` — use OpenAI only
+
+## Google Sheets setup
 
 1. Create a Google Cloud service account and download the JSON key file
    - Go to [Service Accounts](https://console.cloud.google.com/iam-admin/serviceaccounts) in the Google Cloud Console

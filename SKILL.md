@@ -1,7 +1,7 @@
 ---
 name: clawshier
-description: Process receipt or invoice images into structured expenses and log them to Google Sheets. Use when the user wants to scan, log, track, or record an expense from a receipt or invoice image, or when they provide a local file path to a receipt/invoice image.
-metadata: {"openclaw":{"requires":{"env":["OPENAI_API_KEY","GOOGLE_SHEETS_ID","GOOGLE_SERVICE_ACCOUNT_KEY"]},"primaryEnv":"OPENAI_API_KEY"}}
+description: Process receipt or invoice images into structured expenses and log them to Google Sheets. Use when the user wants to scan, log, track, or record an expense from a receipt or invoice image, or when they provide a local file path to a receipt/invoice image. OCR can use local Ollama or OpenAI depending on machine configuration.
+metadata: {"openclaw":{"requires":{"env":["GOOGLE_SHEETS_ID","GOOGLE_SERVICE_ACCOUNT_KEY"]},"primaryEnv":"OPENAI_API_KEY"}}
 ---
 
 # Clawshier
@@ -120,4 +120,7 @@ If a step still fails after retries, say which step failed and include the error
 
 - Use `{baseDir}` exactly so the commands do not depend on the current working directory.
 - For old invoices, prefer `--date YYYY-MM-DD` instead of relying on same-day date inference.
+- OCR backend selection is machine-level: `CLAWSHIER_VISION_PROVIDER=auto|ollama|openai`.
+- `auto` tries local Ollama first and falls back to OpenAI automatically.
+- Use `CLAWSHIER_OLLAMA_MODEL` and `CLAWSHIER_OLLAMA_HOST` to control the Ollama OCR backend.
 - When `CLAWSHIER_TEST_MODE=1` is present in the environment, the handlers use local test fixtures and a local mock sheet store. Use that for safe smoke tests before touching real APIs.
