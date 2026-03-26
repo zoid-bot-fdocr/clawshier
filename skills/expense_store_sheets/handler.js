@@ -4,6 +4,7 @@ require("dotenv").config({ path: require("path").resolve(__dirname, "../../.env"
 const {
   ensureSheet, deleteSheetIfExists, appendRow, appendRows, updateSummary,
 } = require("../../lib/googleSheets");
+const { sheetNameFromDate } = require("../../lib/expenseValidator");
 
 const EXPENSE_HEADERS = [
   "Fingerprint", "Date", "Vendor", "Category",
@@ -11,13 +12,6 @@ const EXPENSE_HEADERS = [
 ];
 const BREAKDOWN_SHEET = "Invoice Archive Breakdown";
 const BREAKDOWN_HEADERS = ["Fingerprint", "Item", "Quantity", "Cost"];
-
-function sheetNameFromDate(dateStr) {
-  const d = new Date(dateStr + "T00:00:00");
-  const mm = String(d.getMonth() + 1).padStart(2, "0");
-  const yy = String(d.getFullYear()).slice(-2);
-  return `${mm}-${yy}`;
-}
 
 async function main() {
   let input = "";

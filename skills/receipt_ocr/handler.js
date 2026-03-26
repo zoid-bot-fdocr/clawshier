@@ -2,18 +2,40 @@
 require("dotenv").config({ path: require("path").resolve(__dirname, "../../.env") });
 
 const fs = require("fs");
+const path = require("path");
 const OpenAI = require("openai");
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const isTestMode = process.env.CLAWSHIER_TEST_MODE === "1";
+const openai = isTestMode ? null : new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 const model = process.env.OPENAI_MODEL || "gpt-4o";
 
-async function main() {
-  const imageArg = process.argv.indexOf("--image");
-  if (imageArg === -1 || !process.argv[imageArg + 1]) {
+function getImagePath(argv = process.argv) {
+  const imageArg = argv.indexOf("--image");
+  if (imageArg === -1 || !argv[imageArg + 1]) {
     throw new Error("Usage: handler.js --image <path>");
   }
+  return argv[imageArg + 1];
+}
 
-  const imagePath = process.argv[imageArg + 1];
+function runMockOcr(imagePath) {
+  const fixturePath = process.env.CLAWSHIER_TEST_OCR_FIXTURE || path.resolve(__dirname, "../../test/fixtures/mock-ocr.txt");
+  const base = path.basename(imagePath).toLowerCase();
+
+  if (base.includes("not-a-receipt")) {
+    throw new Error("Image does not appear to be a receipt or invoice");
+  }
+
+  return fs.readFileSync(fixturePath, "utf8").trim();
+}
+
+async function main() {
+  const imagePath = getImagePath();
+
+  if (isTestMode) {
+    process.stdout.write(JSON.stringify({ ocr_text: runMockOcr(imagePath) }));
+    return;
+  }
+
   const imageBuffer = fs.readFileSync(imagePath);
   const base64 = imageBuffer.toString("base64");
 
