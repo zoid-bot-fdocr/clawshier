@@ -1,9 +1,12 @@
 #!/usr/bin/env node
 require("dotenv").config({ path: require("path").resolve(__dirname, "../../.env") });
 
+const fs = require("fs");
+const path = require("path");
 const OpenAI = require("openai");
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const isTestMode = process.env.CLAWSHIER_TEST_MODE === "1";
+const openai = isTestMode ? null : new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 const model = process.env.OPENAI_MODEL || "gpt-4o";
 
 const SYSTEM_PROMPT = `You are a receipt parser. Given raw OCR text from a receipt or invoice, extract structured data as JSON.
@@ -20,12 +23,22 @@ Required fields:
 
 Respond ONLY with valid JSON matching this schema. No markdown, no explanation.`;
 
+function readMockStructured() {
+  const fixturePath = process.env.CLAWSHIER_TEST_STRUCTURED_FIXTURE || path.resolve(__dirname, "../../test/fixtures/mock-structured.json");
+  return JSON.parse(fs.readFileSync(fixturePath, "utf8"));
+}
+
 async function main() {
   let input = "";
   for await (const chunk of process.stdin) input += chunk;
 
   const { ocr_text } = JSON.parse(input);
   if (!ocr_text) throw new Error("Missing ocr_text in input");
+
+  if (isTestMode) {
+    process.stdout.write(JSON.stringify(readMockStructured()));
+    return;
+  }
 
   const response = await openai.chat.completions.create({
     model,
