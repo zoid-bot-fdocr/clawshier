@@ -52,6 +52,7 @@ Example `.env`:
 CLAWSHIER_VISION_PROVIDER=auto
 CLAWSHIER_OLLAMA_MODEL=llama3.2-vision:latest
 CLAWSHIER_OLLAMA_HOST=http://127.0.0.1:11434
+CLAWSHIER_OLLAMA_MAX_DIMENSION=512
 OPENAI_API_KEY=
 OPENAI_MODEL=gpt-4o
 GOOGLE_SHEETS_ID=
@@ -63,6 +64,8 @@ Provider modes:
 - `auto` — prefer Ollama, fall back to OpenAI
 - `ollama` — use Ollama only
 - `openai` — use OpenAI only
+
+For local Ollama OCR, Clawshier downsizes images on macOS with `sips` before sending them to the model. Use `CLAWSHIER_OLLAMA_MAX_DIMENSION` to tune that behavior.
 
 ## Google Sheets setup
 

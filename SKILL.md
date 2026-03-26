@@ -122,5 +122,5 @@ If a step still fails after retries, say which step failed and include the error
 - For old invoices, prefer `--date YYYY-MM-DD` instead of relying on same-day date inference.
 - OCR backend selection is machine-level: `CLAWSHIER_VISION_PROVIDER=auto|ollama|openai`.
 - `auto` tries local Ollama first and falls back to OpenAI automatically.
-- Use `CLAWSHIER_OLLAMA_MODEL` and `CLAWSHIER_OLLAMA_HOST` to control the Ollama OCR backend.
+- Use `CLAWSHIER_OLLAMA_MODEL`, `CLAWSHIER_OLLAMA_HOST`, and `CLAWSHIER_OLLAMA_MAX_DIMENSION` to control the Ollama OCR backend.
 - When `CLAWSHIER_TEST_MODE=1` is present in the environment, the handlers use local test fixtures and a local mock sheet store. Use that for safe smoke tests before touching real APIs.
