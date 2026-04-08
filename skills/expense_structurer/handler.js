@@ -30,8 +30,8 @@ function readMockStructured() {
   return JSON.parse(fs.readFileSync(fixturePath, "utf8"));
 }
 
-async function main() {
-  const { ocr_text } = await readJsonInput();
+async function processExpenseStructure(input) {
+  const { ocr_text } = input || {};
   if (!ocr_text) throw new Error("Missing ocr_text in input");
 
   const traceEnabled = isTraceEnabled();
@@ -48,8 +48,7 @@ async function main() {
       trace.steps.push(finishTraceStep(traceStep, { provider: "mock", status: "ok" }));
       writeTrace(trace);
     }
-    writeJsonOutput(output);
-    return;
+    return output;
   }
 
   const response = await openai.chat.completions.create({
@@ -79,10 +78,21 @@ async function main() {
     writeTrace(trace);
   }
 
-  writeJsonOutput(structured);
+  return structured;
 }
 
-main().catch((err) => {
-  process.stderr.write(JSON.stringify({ error: err.message }));
-  process.exit(1);
-});
+async function main() {
+  writeJsonOutput(await processExpenseStructure(await readJsonInput()));
+}
+
+if (require.main === module) {
+  main().catch((err) => {
+    process.stderr.write(JSON.stringify({ error: err.message }));
+    process.exit(1);
+  });
+}
+
+module.exports = {
+  processExpenseStructure,
+  readMockStructured,
+};

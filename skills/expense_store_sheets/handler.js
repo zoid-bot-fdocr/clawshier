@@ -15,9 +15,7 @@ const EXPENSE_HEADERS = [
 const BREAKDOWN_SHEET = "Invoice Archive Breakdown";
 const BREAKDOWN_HEADERS = ["Fingerprint", "Item", "Quantity", "Cost"];
 
-async function main() {
-  const expense = await readJsonInput();
-
+async function processExpenseStore(expense) {
   const traceEnabled = isTraceEnabled();
   const trace = traceEnabled ? (readTrace() || { steps: [] }) : null;
   const traceStep = traceEnabled ? startTraceStep("store", { kind: "google-sheets" }) : null;
@@ -70,10 +68,20 @@ async function main() {
     writeTrace(trace);
   }
 
-  writeJsonOutput({ success: true, row: rowNumber });
+  return { success: true, row: rowNumber };
 }
 
-main().catch((err) => {
-  process.stderr.write(JSON.stringify({ error: err.message }));
-  process.exit(1);
-});
+async function main() {
+  writeJsonOutput(await processExpenseStore(await readJsonInput()));
+}
+
+if (require.main === module) {
+  main().catch((err) => {
+    process.stderr.write(JSON.stringify({ error: err.message }));
+    process.exit(1);
+  });
+}
+
+module.exports = {
+  processExpenseStore,
+};

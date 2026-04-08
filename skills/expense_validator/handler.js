@@ -14,14 +14,12 @@ const { readJsonInput, writeJsonOutput } = require("../../lib/io");
 
 const FINGERPRINT_COLUMN = "A";
 
-async function main() {
-  const input = await readJsonInput();
-
+async function processExpenseValidation(input, { argv = process.argv } = {}) {
   const traceEnabled = isTraceEnabled();
   const trace = traceEnabled ? (readTrace() || { steps: [] }) : null;
   const traceStep = traceEnabled ? startTraceStep("validate", { kind: "local+sheets" }) : null;
 
-  const overrideDate = parseOverrideDate(process.argv);
+  const overrideDate = parseOverrideDate(argv);
   const expense = normalize(input, { overrideDate, today: new Date() });
   validate(expense);
 
@@ -49,10 +47,20 @@ async function main() {
     writeTrace(trace);
   }
 
-  writeJsonOutput(expense);
+  return expense;
 }
 
-main().catch((err) => {
-  process.stderr.write(JSON.stringify({ error: err.message }));
-  process.exit(1);
-});
+async function main() {
+  writeJsonOutput(await processExpenseValidation(await readJsonInput()));
+}
+
+if (require.main === module) {
+  main().catch((err) => {
+    process.stderr.write(JSON.stringify({ error: err.message }));
+    process.exit(1);
+  });
+}
+
+module.exports = {
+  processExpenseValidation,
+};
