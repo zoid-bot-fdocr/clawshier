@@ -5,6 +5,7 @@ const fs = require("fs");
 const path = require("path");
 const { runOcrWithProvider } = require("../../lib/visionOcr");
 const { isTraceEnabled, readTrace, writeTrace, startTraceStep, finishTraceStep } = require("../../lib/trace");
+const { writeJsonOutput } = require("../../lib/io");
 
 const isTestMode = process.env.CLAWSHIER_TEST_MODE === "1";
 
@@ -27,8 +28,7 @@ function runMockOcr(imagePath) {
   return fs.readFileSync(fixturePath, "utf8").trim();
 }
 
-async function main() {
-  const imagePath = getImagePath();
+async function processReceiptOcr({ imagePath }) {
   const traceEnabled = isTraceEnabled();
   const trace = traceEnabled ? (readTrace() || { steps: [] }) : null;
   const traceStep = traceEnabled ? startTraceStep("ocr", { kind: "vision", imagePath }) : null;
@@ -42,8 +42,7 @@ async function main() {
       }));
       writeTrace(trace);
     }
-    process.stdout.write(JSON.stringify(output));
-    return;
+    return output;
   }
 
   const ocrText = await runOcrWithProvider({ imagePath });
@@ -57,10 +56,23 @@ async function main() {
     }));
     writeTrace(trace);
   }
-  process.stdout.write(JSON.stringify({ ocr_text: ocrText }));
+  return { ocr_text: ocrText };
 }
 
-main().catch((err) => {
-  process.stderr.write(JSON.stringify({ error: err.message }));
-  process.exit(1);
-});
+async function main() {
+  const imagePath = getImagePath();
+  writeJsonOutput(await processReceiptOcr({ imagePath }));
+}
+
+if (require.main === module) {
+  main().catch((err) => {
+    process.stderr.write(JSON.stringify({ error: err.message }));
+    process.exit(1);
+  });
+}
+
+module.exports = {
+  getImagePath,
+  processReceiptOcr,
+  runMockOcr,
+};
